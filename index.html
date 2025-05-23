@@ -54,13 +54,13 @@
       object-fit: cover;
     }
 
-    .intro, .servicos, .sobre, .galeria, .avaliacoes, .contato, .agendamento {
+    section {
       padding: 40px 20px;
       text-align: center;
       background-color: #fff;
     }
 
-    .intro h1, .servicos h2, .sobre h2, .galeria h2, .avaliacoes h2, .contato h2, .agendamento h2 {
+    section h1, section h2 {
       font-size: 2.2em;
       margin-bottom: 10px;
     }
@@ -69,7 +69,7 @@
       margin-top: 20px;
     }
 
-    .buttons a {
+    .buttons a, form button {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -80,6 +80,9 @@
       border-radius: 5px;
       text-decoration: none;
       font-weight: bold;
+      border: none;
+      cursor: pointer;
+      font-size: 1em;
       transition: background-color 0.3s;
     }
 
@@ -87,110 +90,138 @@
       background-color: #C13584;
     }
 
-    .buttons a:hover {
+    .buttons a:hover,
+    form button:hover {
       opacity: 0.9;
     }
 
-    .servicos ul {
-      list-style: none;
-      padding: 0;
-      max-width: 600px;
-      margin: 20px auto 0 auto;
-      text-align: left;
-    }
-
-    .servicos ul li {
-      background: #f0f0f0;
-      margin: 10px 0;
-      padding: 15px;
-      border-left: 5px solid #c0392b;
-      font-size: 1.1em;
-    }
-
+    /* Galeria */
     .galeria .fotos {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 20px;
       margin-top: 30px;
     }
 
     .galeria .fotos img {
-      max-width: 300px;
       width: 100%;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      object-fit: cover;
     }
 
-    .avaliacoes p {
+    /* Tabela de serviços */
+    .servicos table {
+      margin: 20px auto 0 auto;
+      width: 90%;
+      max-width: 700px;
+      border-collapse: collapse;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .servicos th, .servicos td {
+      padding: 15px 20px;
+      background-color: #fafafa;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
       font-size: 1.1em;
-      margin-bottom: 20px;
     }
 
-    .contato form, .agendamento form {
+    .servicos th {
+      background-color: #c0392b;
+      color: white;
+      font-weight: 700;
+    }
+
+    .servicos tr:hover td {
+      background-color: #fbeaea;
+    }
+
+    .servicos td.price {
+      color: #c0392b;
+      font-weight: bold;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 600px) {
+      .servicos table, .servicos thead, .servicos tbody, .servicos th, .servicos td, .servicos tr {
+        display: block;
+      }
+      .servicos thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+      }
+      .servicos tr {
+        margin-bottom: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        background-color: #fff;
+        padding: 15px;
+      }
+      .servicos td {
+        border: none;
+        padding-left: 50%;
+        position: relative;
+        text-align: left;
+        background-color: transparent;
+      }
+      .servicos td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 15px;
+        top: 15px;
+        font-weight: bold;
+        color: #c0392b;
+        white-space: nowrap;
+      }
+      .servicos td.price {
+        text-align: left;
+        padding-left: 50%;
+      }
+    }
+
+    form {
       max-width: 500px;
-      margin: 20px auto;
+      margin: 0 auto;
       display: flex;
       flex-direction: column;
       gap: 15px;
     }
 
-    .contato input, .contato textarea, .agendamento input {
-      padding: 15px;
+    form input, form select, form textarea {
+      padding: 10px;
       font-size: 1em;
       border: 1px solid #ccc;
       border-radius: 5px;
-    }
-
-    .contato button, .agendamento button {
-      background-color: #25D366;
-      color: white;
-      border: none;
-      padding: 15px;
-      font-size: 1.1em;
-      cursor: pointer;
-      border-radius: 5px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
+      resize: vertical;
     }
 
     footer {
-      background-color: #333;
+      background-color: #222;
       color: #fff;
       padding: 40px 20px;
       text-align: center;
     }
 
-    .footer-content {
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    .footer-contact, .footer-map {
-      margin-bottom: 20px;
-    }
-
-    .footer-contact a {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: inherit;
+    .footer-content a {
+      color: #25D366;
       text-decoration: none;
     }
 
-    iframe {
-      width: 100%;
-      max-width: 600px;
-      height: 300px;
-      border: none;
+    .footer-content a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <img src="1.png" alt="KB Lava Jato" class="logo" />
+    <img src="img/1.png" alt="KB Lava Jato" class="logo" />
     <nav>
       <a href="#intro">Início</a>
       <a href="#sobre">Sobre</a>
@@ -203,7 +234,7 @@
   </header>
 
   <section class="hero">
-    <img src="2.png" alt="Banner KB Lava Jato" />
+    <img src="img/2.png" alt="Banner KB Lava Jato" />
   </section>
 
   <section class="intro" id="intro">
@@ -217,29 +248,52 @@
 
   <section class="sobre" id="sobre">
     <h2>Sobre o KB Lava Jato</h2>
-    <p>O <strong>KB Lava Jato</strong> nasceu com o propósito de oferecer um atendimento diferenciado e serviços de qualidade para quem valoriza o cuidado com seu veículo. Atuamos com compromisso, dedicação e usamos produtos das melhores marcas do mercado como Vonixx e outras referências do setor.</p>
-    <p>Estamos localizados em uma estrutura prática e eficiente, montada com barraca na rua, que permite um atendimento ágil e completo. Cada cliente é atendido com atenção especial, seja em lavagens rápidas ou detalhadas.</p>
-    <p>Nosso diferencial está no cuidado com os detalhes e no atendimento humanizado, sempre prezando pela satisfação total de quem confia seu carro ou moto aos nossos serviços.</p>
+    <p>O <strong>KB Lava Jato</strong> nasceu com o propósito de oferecer um atendimento diferenciado e serviços de qualidade para quem valoriza o cuidado com seu veículo...</p>
   </section>
 
   <section class="servicos" id="servicos">
     <h2>Nossos Serviços</h2>
-    <ul>
-      <li><strong>Lavagem Simples:</strong> Remoção básica de sujeiras externas com jato d'água e shampoo neutro.</li>
-      <li><strong>Lavagem Completa:</strong> Lavagem externa e interna com aspiração, painel, vidros e rodas.</li>
-      <li><strong>Lavagem Detalhada:</strong> Higienização minuciosa de cada canto do veículo, ideal para manutenção completa.</li>
-      <li><strong>Polimento:</strong> Restauração do brilho da pintura com ceras especiais e técnica profissional.</li>
-    </ul>
+    <table>
+      <thead>
+        <tr>
+          <th>Serviço</th>
+          <th>Descrição</th>
+          <th>Preço</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-label="Serviço">Lavagem Simples</td>
+          <td data-label="Descrição">Remoção básica de sujeiras externas com jato d'água e shampoo neutro.</td>
+          <td data-label="Preço" class="price">R$ 20,00</td>
+        </tr>
+        <tr>
+          <td data-label="Serviço">Lavagem Completa</td>
+          <td data-label="Descrição">Lavagem externa e interna com aspiração, painel, vidros e rodas.</td>
+          <td data-label="Preço" class="price">R$ 40,00</td>
+        </tr>
+        <tr>
+          <td data-label="Serviço">Lavagem Detalhada</td>
+          <td data-label="Descrição">Higienização minuciosa de cada canto do veículo.</td>
+          <td data-label="Preço" class="price">R$ 60,00</td>
+        </tr>
+        <tr>
+          <td data-label="Serviço">Polimento</td>
+          <td data-label="Descrição">Restauração do brilho da pintura com ceras especiais.</td>
+          <td data-label="Preço" class="price">R$ 100,00</td>
+        </tr>
+      </tbody>
+    </table>
   </section>
 
   <section class="galeria" id="galeria">
     <h2>Galeria de Fotos</h2>
     <p>Confira alguns momentos do nosso dia a dia e veja a qualidade do nosso serviço.</p>
     <div class="fotos">
-      <img src="3.jpg" alt="Lavagem de carro no KB Lava Jato" />
-      <img src="4.jpg" alt="Motocicleta sendo lavada" />
-      <img src="5.jpg" alt="Produtos automotivos" />
-      <img src="6.jpg" alt="Área externa com veículos aguardando" />
+      <img src="img/3.jpg" alt="Lavagem de carro no KB Lava Jato" loading="lazy" />
+      <img src="img/4.jpg" alt="Motocicleta sendo lavada" loading="lazy" />
+      <img src="img/5.jpg" alt="Produtos automotivos" loading="lazy" />
+      <img src="img/6.jpg" alt="Área externa com veículos aguardando" loading="lazy" />
     </div>
   </section>
 
@@ -263,15 +317,29 @@
     </form>
   </section>
 
-  <!-- Nova seção de agendamento -->
   <section class="agendamento" id="agendamento">
     <h2>Agende seu Serviço</h2>
-    <p>Escolha a data e hora que deseja e envie seu pedido de agendamento via WhatsApp.</p>
+    <p>Escolha a data, hora e serviço desejado e envie seu pedido de agendamento via WhatsApp.</p>
     <form id="form-agendamento">
       <input type="text" id="agendamento-nome" placeholder="Seu nome" required />
-      <input type="tel" id="agendamento-telefone" placeholder="Seu telefone" pattern="[0-9\s()+-]{8,}" required />
+      <input type="tel" id="agendamento-telefone" placeholder="Seu telefone" pattern="[0-9\s\+\-]{8,}" required />
+      <input type="text" id="agendamento-placa" placeholder="Placa do carro/moto" maxlength="8" required />
+            
+      <label for="agendamento-servico" style="text-align:left;">Serviço:</label>
+      <select id="agendamento-servico" required>
+        <option value="">Selecione</option>
+        <option value="Lavagem simples">Lavagem simples</option>
+        <option value="Lavagem completa">Lavagem completa</option>
+        <option value="Polimento">Polimento</option>
+      </select>
+      
       <input type="date" id="agendamento-data" required />
-      <input type="time" id="agendamento-hora" required />
+      
+      <label for="agendamento-hora" style="text-align:left;">Horário:</label>
+      <select id="agendamento-hora" required>
+        <!-- Horários serão inseridos via JS -->
+      </select>
+      
       <button type="submit"><i class="fa-brands fa-whatsapp"></i> Enviar Agendamento</button>
     </form>
   </section>
@@ -281,7 +349,7 @@
       <div class="footer-contact">
         <h3>Contato</h3>
         <p>
-          <a href="https://wa.me/558394147741" target="_blank">
+          <a href="https://wa.me/5583994147741" target="_blank">
             <i class="fa-brands fa-whatsapp"></i> (83) 9 9414-7741
           </a>
         </p>
@@ -296,32 +364,44 @@
   </footer>
 
   <script>
-    // Formulário contato WhatsApp
-    document.getElementById('formulario').addEventListener('submit', function (e) {
-      e.preventDefault();
-      const nome = document.getElementById('nome').value.trim();
-      const mensagem = document.getElementById('mensagem').value.trim();
-      const texto = encodeURIComponent(`Olá, me chamo ${nome} e ${mensagem}`);
-      window.open(`https://wa.me/558394147741?text=${texto}`, '_blank');
+  const selectHora = document.getElementById('agendamento-hora');
+  const horariosManha = ['07:00', '08:00', '09:00', '10:00', '11:00'];
+  const horariosTarde = ['13:00', '14:00', '15:00', '16:00'];
+
+  function preencherHorarios() {
+    selectHora.innerHTML = '<option value="">Selecione</option>';
+    [...horariosManha, ...horariosTarde].forEach(horario => {
+      const option = document.createElement('option');
+      option.value = horario;
+      option.textContent = horario;
+      selectHora.appendChild(option);
     });
+  }
 
-    // Formulário agendamento WhatsApp
-    document.getElementById('form-agendamento').addEventListener('submit', function (e) {
-      e.preventDefault();
-      const nome = document.getElementById('agendamento-nome').value.trim();
-      const telefone = document.getElementById('agendamento-telefone').value.trim();
-      const data = document.getElementById('agendamento-data').value;
-      const hora = document.getElementById('agendamento-hora').value;
+  window.addEventListener('DOMContentLoaded', preencherHorarios);
 
-      // Formatando data no formato DD/MM/YYYY
-      const dataFormatada = new Date(data).toLocaleDateString('pt-BR');
+  const formAgendamento = document.getElementById('form-agendamento');
+  formAgendamento.addEventListener('submit', function(event) {
+    event.preventDefault();
 
-      const texto = encodeURIComponent(
-        `Olá, gostaria de agendar um serviço.\nNome: ${nome}\nTelefone: ${telefone}\nData: ${dataFormatada}\nHora: ${hora}`
-      );
+    const nome = document.getElementById('agendamento-nome').value.trim();
+    const telefone = document.getElementById('agendamento-telefone').value.trim();
+    const placa = document.getElementById('agendamento-placa').value.trim();
+    const servico = document.getElementById('agendamento-servico').value;
+    const data = document.getElementById('agendamento-data').value;
+    const hora = document.getElementById('agendamento-hora').value;
 
-      window.open(`https://wa.me/558394147741?text=${texto}`, '_blank');
-    });
-  </script>
-</body>
-</html>
+    const mensagem = `Olá! Gostaria de agendar um serviço:\n\n` +
+                     `*Nome:* ${nome}\n` +
+                     `*Telefone:* ${telefone}\n` +
+                     `*Placa:* ${placa}\n` +
+                     `*Serviço:* ${servico}\n` +
+                     `*Data:* ${data}\n` +
+                     `*Horário:* ${hora}`;
+
+    const numeroWhatsApp = '558394147741';
+    const link = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
+
+    window.open(link, '_blank');
+  });
+        </script>
