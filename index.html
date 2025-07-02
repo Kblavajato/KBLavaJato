@@ -221,7 +221,7 @@
 <body>
 
   <header>
-    <img src="1.png" alt="KB Lava Jato" class="logo" />
+    <img src="img/1.png" alt="KB Lava Jato" class="logo" />
     <nav>
       <a href="#intro">Início</a>
       <a href="#sobre">Sobre</a>
@@ -234,7 +234,7 @@
   </header>
 
   <section class="hero">
-    <img src="2.png" alt="Banner KB Lava Jato" />
+    <img src="img/2.png" alt="Banner KB Lava Jato" />
   </section>
 
   <section class="intro" id="intro">
@@ -290,10 +290,10 @@
     <h2>Galeria de Fotos</h2>
     <p>Confira alguns momentos do nosso dia a dia e veja a qualidade do nosso serviço.</p>
     <div class="fotos">
-      <img src="3.jpg" alt="Lavagem de carro no KB Lava Jato" loading="lazy" />
-      <img src="4.jpg" alt="Motocicleta sendo lavada" loading="lazy" />
-      <img src="5.jpg" alt="Produtos automotivos" loading="lazy" />
-      <img src="6.jpg" alt="Área externa com veículos aguardando" loading="lazy" />
+      <img src="img/3.jpg" alt="Lavagem de carro no KB Lava Jato" loading="lazy" />
+      <img src="img/4.jpg" alt="Motocicleta sendo lavada" loading="lazy" />
+      <img src="img/5.jpg" alt="Produtos automotivos" loading="lazy" />
+      <img src="img/6.jpg" alt="Área externa com veículos aguardando" loading="lazy" />
     </div>
   </section>
 
@@ -363,45 +363,87 @@
     </div>
   </footer>
 
-  <script>
-  const selectHora = document.getElementById('agendamento-hora');
-  const horariosManha = ['07:00', '08:00', '09:00', '10:00', '11:00'];
-  const horariosTarde = ['13:00', '14:00', '15:00', '16:00'];
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getDatabase, ref, get, set, child } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
-  function preencherHorarios() {
-    selectHora.innerHTML = '<option value="">Selecione</option>';
-    [...horariosManha, ...horariosTarde].forEach(horario => {
-      const option = document.createElement('option');
-      option.value = horario;
-      option.textContent = horario;
-      selectHora.appendChild(option);
-    });
-  }
+  const firebaseConfig = {
+    apiKey: "AIzaSyDQyboNI6oc2CSsENMYUWMM4N0A9zcF_NY",
+    authDomain: "kb-lava-jato.firebaseapp.com",
+    databaseURL: "https://kb-lava-jato-default-rtdb.firebaseio.com",
+    projectId: "kb-lava-jato",
+    storageBucket: "kb-lava-jato.firebasestorage.app",
+    messagingSenderId: "545896027646",
+    appId: "1:545896027646:web:635af9813686f445dd1caf",
+    measurementId: "G-3T1FFG5L3Z"
+  };
 
-  window.addEventListener('DOMContentLoaded', preencherHorarios);
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-  const formAgendamento = document.getElementById('form-agendamento');
-  formAgendamento.addEventListener('submit', function(event) {
-    event.preventDefault();
+// Preencher os horários disponíveis no select
+const horaSelect = document.getElementById('agendamento-hora');
+const horariosDisponiveis = [
+
+  "07:00", "08:00", "09:00", "10:00",
+  "13:00", "14:00", "15:00", "16:00"
+];
+
+horariosDisponiveis.forEach(hora => {
+  const option = document.createElement('option');
+  option.value = hora;
+  option.textContent = hora;
+  horaSelect.appendChild(option);
+});
+  document.getElementById('form-agendamento').addEventListener('submit', async function (e) {
+    e.preventDefault();
 
     const nome = document.getElementById('agendamento-nome').value.trim();
     const telefone = document.getElementById('agendamento-telefone').value.trim();
-    const placa = document.getElementById('agendamento-placa').value.trim();
+    const placa = document.getElementById('agendamento-placa').value.trim().toUpperCase();
     const servico = document.getElementById('agendamento-servico').value;
     const data = document.getElementById('agendamento-data').value;
     const hora = document.getElementById('agendamento-hora').value;
 
-    const mensagem = `Olá! Gostaria de agendar um serviço:\n\n` +
-                     `*Nome:* ${nome}\n` +
-                     `*Telefone:* ${telefone}\n` +
-                     `*Placa:* ${placa}\n` +
-                     `*Serviço:* ${servico}\n` +
-                     `*Data:* ${data}\n` +
-                     `*Horário:* ${hora}`;
+    if (!nome || !telefone || !placa || !servico || !data || !hora) {
+      alert('Por favor, preencha todos os campos.');
+      return;
+    }
 
-    const numeroWhatsApp = '558394147741';
-    const link = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
+    const agendamentoId = `${data}_${hora.replace(":", "-")}`;
+    const agendamentoRef = ref(db, 'agendamentos/' + agendamentoId);
 
-    window.open(link, '_blank');
+    try {
+      const snapshot = await get(agendamentoRef);
+
+      if (snapshot.exists()) {
+        alert('Este horário já está agendado. Por favor, escolha outro.');
+        return;
+      }
+
+      const dados = {
+        nome,
+        telefone,
+        placa,
+        servico,
+        data,
+        hora,
+        timestamp: new Date().toISOString()
+      };
+
+      await set(agendamentoRef, dados);
+
+      const mensagem = `Olá! Novo agendamento no KB Lava Jato:\n\n` +
+        `*Nome:* ${nome}\n*Telefone:* ${telefone}\n*Placa:* ${placa}\n` +
+        `*Serviço:* ${servico}\n*Data:* ${data}\n*Hora:* ${hora}`;
+
+      const linkWhatsApp = `https://wa.me/558394147741?text=${encodeURIComponent(mensagem)}`;
+      window.open(linkWhatsApp, '_blank');
+      alert('Agendamento realizado com sucesso!');
+      document.getElementById('form-agendamento').reset();
+    } catch (error) {
+      console.error('Erro ao agendar:', error);
+      alert('Erro ao agendar. Tente novamente.');
+    }
   });
-        </script>
+</script>
