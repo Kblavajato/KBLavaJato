@@ -197,36 +197,89 @@
   </div>
 </footer>
 
-<!-- EmailJS -->
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-<script>
-  (function() {
-    emailjs.init("go_0mb59RZJWklf3S"); // sua Public Key
-  })();
+<!-- Firebase + EmailJS integrados -->
+<script type="module">
+  // Firebase SDK v9 (modular)
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-  document.getElementById("form-agendamento").addEventListener("submit", function(e) {
+  // Configuração do Firebase (sua)
+  const firebaseConfig = {
+    apiKey: "AIzaSyDQyboNI6oc2CSsENMYUWMM4N0A9zcF_NY",
+    authDomain: "kb-lava-jato.firebaseapp.com",
+    databaseURL: "https://kb-lava-jato-default-rtdb.firebaseio.com",
+    projectId: "kb-lava-jato",
+    storageBucket: "kb-lava-jato.firebasestorage.app",
+    messagingSenderId: "545896027646",
+    appId: "1:545896027646:web:635af9813686f445dd1caf",
+    measurementId: "G-3T1FFG5L3Z"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // EmailJS (deve já estar incluso via script separado no <head>)
+  import emailjs from "https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js";
+  emailjs.init("go_0mb59RZJWklf3S"); // Sua public key
+
+  // Formulário de Agendamento
+  const form = document.getElementById("form-agendamento");
+  const botao = form.querySelector("button");
+
+  form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    const dados = {
-      nome: document.getElementById('agendamento-nome').value,
-      telefone: document.getElementById('agendamento-telefone').value,
-      placa: document.getElementById('agendamento-placa').value.toUpperCase(),
-      veiculo: document.getElementById('agendamento-veiculo').value,
-      servico: document.getElementById('agendamento-servico').value,
-      data: document.getElementById('agendamento-data').value,
-      hora: document.getElementById('agendamento-hora').value
-    };
+    // Coleta dos dados
+    const nome = document.getElementById('agendamento-nome').value;
+    const telefone = document.getElementById('agendamento-telefone').value;
+    const placa = document.getElementById('agendamento-placa').value.toUpperCase().replace(/\s/g, '');
+    const veiculo = document.getElementById('agendamento-veiculo').value;
+    const servico = document.getElementById('agendamento-servico').value;
+    const data = document.getElementById('agendamento-data').value;
+    const hora = document.getElementById('agendamento-hora').value;
 
-    emailjs.send("service_r18876j", "template_d9x4uep", dados)
-      .then(function(response) {
-        alert("✅ Agendamento enviado com sucesso! Confira seu e-mail 📩");
-        document.getElementById("form-agendamento").reset();
-      }, function(error) {
-        console.error("Erro:", error);
-        alert("❌ Erro ao enviar. Tente novamente.");
+    const dados = { nome, telefone, placa, veiculo, servico, data, hora };
+
+    // Desativa o botão enquanto processa
+    botao.disabled = true;
+    botao.textContent = "Enviando...";
+
+    try {
+      // Verifica se já existe um agendamento nesse horário
+      const agendamentosRef = collection(db, "agendamentos");
+      const q = query(agendamentosRef, where("data", "==", data), where("hora", "==", hora));
+      const resultado = await getDocs(q);
+
+      if (!resultado.empty) {
+        alert("❌ Este horário já está agendado. Por favor, escolha outro.");
+        botao.disabled = false;
+        botao.textContent = "Agendar";
+        return;
+      }
+
+      // 1. Envia o e-mail via EmailJS
+      await emailjs.send("service_r18876j", "template_d9x4uep", dados);
+
+      // 2. Salva no Firestore
+      await addDoc(agendamentosRef, {
+        ...dados,
+        timestamp: new Date()
       });
+
+      alert("✅ Agendamento realizado com sucesso! Confira seu e-mail 📩");
+      form.reset();
+
+    } catch (error) {
+      console.error("Erro:", error);
+      alert("❌ Ocorreu um erro. Tente novamente.");
+    }
+
+    // Reativa o botão
+    botao.disabled = false;
+    botao.textContent = "Agendar";
   });
 </script>
+
 
 </body>
 </html>
