@@ -1,39 +1,183 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KB Lava Jato — Agendamento</title>
 
   <style>
-    :root{
-      --bg:#0f1724; --card:#0b1220; --accent:#ff7a00; --muted:#94a3b8;
-      --glass: rgba(255,255,255,0.03); --radius:12px; --max-width:980px;
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      color-scheme: dark;
+    /* RESET E ESTILO BASE */
+    *{margin:0;padding:0;box-sizing:border-box;font-family:Arial, sans-serif;}
+    body{background:linear-gradient(180deg,#0f1724,#071021);color:#e6eef8;}
+    a{text-decoration:none;color:inherit;}
+
+    .container{max-width:960px;margin:30px auto;padding:20px;display:flex;flex-direction:column;gap:20px;}
+    header{display:flex;align-items:center;gap:15px;margin-bottom:25px;}
+    .logo{width:60px;height:60px;background:linear-gradient(135deg,#ff7a00,#ffb16b);border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#081023;font-size:24px;}
+    h1{font-size:22px;}
+    p.lead{color:#94a3b8;font-size:14px;}
+
+    main{display:flex;gap:20px;flex-wrap:wrap;}
+    .form-card, .list-card{background:rgba(255,255,255,0.03);padding:20px;border-radius:12px;flex:1 1 400px;box-shadow:0 6px 25px rgba(0,0,0,0.6);}
+
+    form{display:flex;flex-direction:column;gap:12px;}
+    label{font-size:13px;color:#94a3b8;}
+    input,select,button{padding:10px 12px;border-radius:10px;border:none;background:#0b1220;color:#e6eef8;font-size:14px;}
+    input[type="date"], input[type="time"]{padding:8px;}
+    button{background:#ff7a00;font-weight:600;cursor:pointer;transition:0.3s;}
+    button:hover{opacity:0.85;}
+    button:disabled{opacity:0.6;cursor:not-allowed;}
+
+    .row{display:flex;gap:10px;flex-wrap:wrap;}
+    .row .col{flex:1 1 45%;}
+
+    .list{display:flex;flex-direction:column;gap:10px;max-height:500px;overflow-y:auto;}
+    .item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);}
+    .item .muted{color:#94a3b8;font-size:12px;}
+
+    footer{margin-top:10px;color:#94a3b8;font-size:12px;text-align:center;}
+    .hint{font-size:12px;color:#94a3b8;}
+
+    @media(max-width:900px){main{flex-direction:column;}}
+  </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs, addDoc, orderBy } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDQyboNI6oc2CSsENMYUWMM4N0A9zcF_NY",
+      authDomain: "kb-lava-jato.firebaseapp.com",
+      databaseURL: "https://kb-lava-jato-default-rtdb.firebaseio.com",
+      projectId: "kb-lava-jato",
+      storageBucket: "kb-lava-jato.firebasestorage.app",
+      messagingSenderId: "545896027646",
+      appId: "1:545896027646:web:635af9813686f445dd1caf",
+      measurementId: "G-3T1FFG5L3Z"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.db = db;
+    window.firebaseCollection = collection;
+    window.firebaseQuery = query;
+    window.firebaseWhere = where;
+    window.firebaseGetDocs = getDocs;
+    window.firebaseAddDoc = addDoc;
+    window.firebaseOrderBy = orderBy;
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script>emailjs.init("go_0mb59RZJWklf3S");</script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">KB</div>
+      <div>
+        <h1>KB Lava Jato — Agendamentos</h1>
+        <p class="lead">Preencha o formulário para agendar. O sistema evita horários duplicados e envia confirmação por e-mail.</p>
+      </div>
+    </header>
+
+    <main>
+      <div class="form-card">
+        <form id="agendamentoForm">
+          <div class="row">
+            <div class="col"><label>Nome</label><input id="nome" required></div>
+            <div class="col"><label>Telefone</label><input id="telefone" required></div>
+          </div>
+
+          <div class="row">
+            <div class="col"><label>Tipo de veículo</label><select id="tipoVeiculo" required><option value="">Selecione...</option><option value="Carro">Carro</option><option value="Moto">Moto</option></select></div>
+            <div class="col"><label>Placa (opcional)</label><input id="placa"></div>
+          </div>
+
+          <div class="row">
+            <div class="col"><label>Data</label><input id="data" type="date" required></div>
+            <div class="col"><label>Hora</label><input id="hora" type="time" required></div>
+          </div>
+
+          <label>Serviço</label>
+          <select id="servico">
+            <option value="Lavagem simples">Lavagem simples</option>
+            <option value="Lavagem completa">Lavagem completa</option>
+            <option value="Polimento">Polimento</option>
+            <option value="Higienização">Higienização</option>
+          </select>
+
+          <label>E-mail (para confirmação)</label>
+          <input id="email" type="email">
+
+          <button id="submitBtn" type="submit">Agendar</button>
+          <p class="hint">Ao agendar, o sistema verifica se já existe um horário igual. Só envia e-mail e salva se estiver livre.</p>
+        </form>
+      </div>
+
+      <div class="list-card">
+        <h3>Próximos agendamentos</h3>
+        <div id="lista" class="list"><div class="muted">Carregando...</div></div>
+        <footer>Os agendamentos aparecem em ordem mais recente primeiro.</footer>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const form = document.getElementById('agendamentoForm');
+    const listaEl = document.getElementById('lista');
+    const submitBtn = document.getElementById('submitBtn');
+
+    async function carregarLista(){
+      listaEl.innerHTML = '<div class="muted">Carregando...</div>';
+      try{
+        const q = firebaseQuery(firebaseCollection(db,'agendamentos'), firebaseOrderBy('timestamp','desc'));
+        const snap = await firebaseGetDocs(q);
+        if(snap.empty){listaEl.innerHTML='<div class="muted">Nenhum agendamento encontrado.</div>'; return;}
+        listaEl.innerHTML='';
+        snap.forEach(doc=>{
+          const d = doc.data();
+          const el = document.createElement('div');
+          el.className='item';
+          el.innerHTML=`<div><div style="font-weight:600">${d.nome}</div><div class="muted">${d.data} • ${d.hora} — ${d.tipoVeiculo}</div></div><div class="muted">${d.servico}</div>`;
+          listaEl.appendChild(el);
+        });
+      } catch(e){console.error(e); listaEl.innerHTML='<div class="muted">Erro ao carregar.</div>'}
     }
-    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#071021);color:#e6eef8}
-    .wrap{max-width:var(--max-width);margin:28px auto;padding:20px}
-    header{display:flex;gap:16px;align-items:center;margin-bottom:22px}
-    .logo{width:72px;height:72px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#ffb16b);display:flex;align-items:center;justify-content:center;font-weight:700;color:#081023}
-    h1{font-size:20px;margin:0}
-    p.lead{margin:0;color:var(--muted);font-size:13px}
-    main{display:grid;grid-template-columns:1fr 420px;gap:18px}
-    @media (max-width:900px){main{grid-template-columns:1fr;}}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:var(--radius);padding:18px;box-shadow:0 6px 30px rgba(2,6,23,0.6)}
-    form{display:grid;gap:12px}
-    label{font-size:13px;color:var(--muted)}
-    input,select{background:var(--card);border:1px solid rgba(255,255,255,0.03);padding:10px 12px;border-radius:10px;color:inherit;font-size:14px}
-    input[type="date"], input[type="time"]{padding:8px}
-    .row{display:flex;gap:10px}
-    .row .col{flex:1}
-    button{background:var(--accent);border:0;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer}
-    button:disabled{opacity:.6;cursor:not-allowed}
-    .list{display:flex;flex-direction:column;gap:10px;max-height:60vh;overflow:auto;padding-right:6px}
-    .item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:var(--glass);border:1px solid rgba(255,255,255,0.02)}
-    .muted{color:var(--muted);font-size:13px}
-    footer{margin-top:16px;color:var(--muted);font-size:12px}
-    .hint{font-size:12px;color:var(--muted)}
+
+    form.addEventListener('submit',async e=>{
+      e.preventDefault();
+      submitBtn.disabled=true; submitBtn.textContent='Salvando...';
+
+      const dados={
+        nome:form.querySelector('#nome').value.trim(),
+        telefone:form.querySelector('#telefone').value.trim(),
+        tipoVeiculo:form.querySelector('#tipoVeiculo').value,
+        placa:form.querySelector('#placa').value.trim(),
+        data:form.querySelector('#data').value,
+        hora:form.querySelector('#hora').value,
+        servico:form.querySelector('#servico').value,
+        email:form.querySelector('#email').value.trim(),
+        timestamp:new Date()
+      };
+
+      try{
+        const q = firebaseQuery(firebaseCollection(db,'agendamentos'), firebaseWhere('data','==',dados.data), firebaseWhere('hora','==',dados.hora));
+        const snap = await firebaseGetDocs(q);
+        if(!snap.empty){alert('❌ Este horário já está agendado. Por favor, escolha outro.'); return;}
+
+        try{await emailjs.send('service_r18876j','template_d9x4uep',dados);} catch(err){console.warn('Falha ao enviar email:',err);}
+        await firebaseAddDoc(firebaseCollection(db,'agendamentos'),dados);
+        alert('✅ Agendamento realizado com sucesso!');
+        form.reset(); carregarLista();
+      } catch(err){console.error(err);alert('❌ Ocorreu um erro ao agendar.');}
+      finally{submitBtn.disabled=false;submitBtn.textContent='Agendar';}
+    });
+
+    carregarLista();
+  </script>
+</body>
+</html>
   </style>
 
   <script type="module">
